@@ -2,7 +2,7 @@
 
 **Mod ID:** `nodecore`  
 **Target:** Forge 1.20.1 (Base Wars pack)  
-**Status:** Phase 2 complete — marker linking, worldgen spacing stub, Omni32 textures; LOD integration pending
+**Status:** Phase 4 complete — LOD soft-optional bridge, marker linking, worldgen spacing stub, Omni32 textures
 
 ## Purpose
 
@@ -28,12 +28,16 @@ NodeCore (main)
 ├── event/
 │   ├── SurfaceSterilityHandler    — cancel sky-exposed planting
 │   ├── LushGrowthHandler          — tick-based growth boost in lush nodes
-│   └── ExtractionAlertHandler     — drill-place broadcast
+│   ├── ExtractionAlertHandler     — drill-place broadcast
+│   ├── NodeMarkerHandler          — marker place/break ↔ SavedData sync
+│   ├── NodeDepositEvent           — runtime deposit-placed event
+│   └── NodeLodEventHandler        — deposit event → NodeLodBridge
 ├── command/NodeCoreCommands       — /nodecore admin tools
-├── event/NodeMarkerHandler        — marker place/break ↔ SavedData sync
 ├── worldgen/
 │   ├── NodeSpacingHints           — min/max spacing from config
-│   └── NodeWorldgenStub           — LOD placement hook (stub)
+│   ├── NodeWorldgenStub           — spacing gate for placement
+│   ├── NodeLodBridge              — soft-optional LOD detection + deposit→node registration
+│   └── NodeLodComms               — IMC channel `nodecore:register_deposit`
 ├── datagen/NodeSpacingWorldgenProvider — emits node_spacing_hints.json
 └── registry/                      — blocks, items, creative tab
 ```
@@ -68,11 +72,11 @@ Nodes persist in `nodecore_nodes` SavedData per `ServerLevel`:
 
 Membership test: `center.distSqr(pos) <= radius²`.
 
-## Integration Points (planned)
+## Integration Points
 
 | System | Integration |
 |--------|-------------|
-| Large Ore Deposits | Auto-register node centers when deposits generate |
+| Large Ore Deposits | `NodeLodBridge` + `NodeDepositEvent` + IMC `nodecore:register_deposit` |
 | In Control! | Spawn rules keyed to node type + radius |
 | KubeJS | Optional script hooks for custom alert formatting |
 | Create mechanical drill | Default extraction alert trigger block |
@@ -90,8 +94,28 @@ Membership test: `center.distSqr(pos) <= radius²`.
 - Worldgen spacing stub (`data/nodecore/worldgen/node_spacing_hints.json` via datagen)
 - `NodeSpacingHints` / `NodeWorldgenStub` for future LOD wiring
 
+**Phase 4 (current):**
+- Soft-optional Large Ore Deposits bridge — no compile-time LOD dependency
+- `NodeLodBridge.isLodPresent()` checks mod ids: `lode`, `largeoredeposits`, `large_ore_deposits`
+- `NodeLodBridge.registerDeposit(level, center, depositType)` maps deposit strings → `NodeType`, runs `NodeWorldgenStub.shouldPlaceNode`, then `NodeSavedData.addNode` with default radius
+- `NodeDepositEvent` on `MinecraftForge.EVENT_BUS` for runtime deposit hooks
+- `NodeLodComms` processes IMC `nodecore:register_deposit` (NBT: `X`/`Y`/`Z` + `Type` or `DepositType`, optional `Dimension`; or string `x,y,z,type[,dimension]`)
+- `/nodecore link <type> [pos]` — manual deposit link for pack testing without LOD
+
+**LOD deposit type → NodeType mapping:**
+
+| Deposit type key(s) | NodeType |
+|---------------------|----------|
+| `iron`, `iron_deposit`, `iron_sump`, `ore_iron` | `ore_iron` |
+| `copper`, `copper_deposit`, `copper_basin`, `ore_copper` | `ore_copper` |
+| `brass`, `brass_deposit`, `brass_basin`, `ore_brass` | `ore_brass` |
+| `quartz`, `nether_quartz`, `quartz_vein`, `ore_quartz` | `ore_quartz` |
+| `lush`, `lush_hydro`, `hydro`, `mega_lush` | `lush_hydro` |
+| `quartz_rift`, `rift`, `volcanic_rift` | `quartz_rift` |
+
+Any key matching a `NodeType` id (case-insensitive) is also accepted.
+
 **Out of scope (next phase):**
-- Procedural node placement at worldgen (LOD hard dependency)
 - Ore stripping / biome purge (may remain in KubeJS or separate datapack)
 - Faction system integration
 - Guardian mob spawn binding

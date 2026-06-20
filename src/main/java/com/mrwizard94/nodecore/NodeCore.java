@@ -4,7 +4,10 @@ import com.mrwizard94.nodecore.command.NodeCoreCommands;
 import com.mrwizard94.nodecore.config.NodeCoreConfig;
 import com.mrwizard94.nodecore.event.ExtractionAlertHandler;
 import com.mrwizard94.nodecore.event.LushGrowthHandler;
+import com.mrwizard94.nodecore.event.NodeLodEventHandler;
 import com.mrwizard94.nodecore.event.SurfaceSterilityHandler;
+import com.mrwizard94.nodecore.worldgen.NodeLodBridge;
+import com.mrwizard94.nodecore.worldgen.NodeLodComms;
 import com.mrwizard94.nodecore.registry.ModBlocks;
 import com.mrwizard94.nodecore.registry.ModCreativeTabs;
 import com.mrwizard94.nodecore.registry.ModItems;
@@ -32,9 +35,19 @@ public class NodeCore {
 
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, NodeCoreConfig.COMMON_SPEC);
 
+        modEventBus.addListener(NodeLodComms::processImc);
+
         MinecraftForge.EVENT_BUS.register(new SurfaceSterilityHandler());
         MinecraftForge.EVENT_BUS.register(new LushGrowthHandler());
         MinecraftForge.EVENT_BUS.register(new ExtractionAlertHandler());
+        MinecraftForge.EVENT_BUS.register(new NodeLodEventHandler());
+        MinecraftForge.EVENT_BUS.register(NodeLodComms.class);
+
+        if (NodeLodBridge.isLodPresent()) {
+            LOGGER.info("Large Ore Deposits detected — node registration bridge active.");
+        } else {
+            LOGGER.info("Large Ore Deposits not present — node bridge available via IMC and /nodecore link.");
+        }
         MinecraftForge.EVENT_BUS.addListener((RegisterCommandsEvent event) ->
                 NodeCoreCommands.register(event.getDispatcher()));
 

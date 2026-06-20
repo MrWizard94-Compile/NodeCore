@@ -6,7 +6,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 
 /**
- * Placeholder for procedural node placement. Large Ore Deposits wiring lands here in a later phase.
+ * Spacing gate for procedural node placement. {@link NodeLodBridge} calls this before registering LOD deposits.
  */
 public final class NodeWorldgenStub {
     private NodeWorldgenStub() {}
