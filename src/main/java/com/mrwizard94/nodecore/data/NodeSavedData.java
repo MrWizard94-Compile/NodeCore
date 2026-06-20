@@ -49,6 +49,20 @@ public class NodeSavedData extends SavedData {
         return removed;
     }
 
+    public Optional<ResourceNode> findByCenter(BlockPos center) {
+        return nodes.stream()
+                .filter(node -> node.getCenter().equals(center))
+                .findFirst();
+    }
+
+    public boolean removeNodeAtCenter(BlockPos center) {
+        boolean removed = nodes.removeIf(node -> node.getCenter().equals(center));
+        if (removed) {
+            setDirty();
+        }
+        return removed;
+    }
+
     public Optional<ResourceNode> findAt(BlockPos pos) {
         return nodes.stream().filter(node -> node.contains(pos)).findFirst();
     }

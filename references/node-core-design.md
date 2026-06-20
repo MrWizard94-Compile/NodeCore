@@ -2,7 +2,7 @@
 
 **Mod ID:** `nodecore`  
 **Target:** Forge 1.20.1 (Base Wars pack)  
-**Status:** Scaffold v0.1.0 — registry + gameplay hooks; worldgen integration pending
+**Status:** Phase 2 complete — marker linking, worldgen spacing stub, Omni32 textures; LOD integration pending
 
 ## Purpose
 
@@ -30,6 +30,11 @@ NodeCore (main)
 │   ├── LushGrowthHandler          — tick-based growth boost in lush nodes
 │   └── ExtractionAlertHandler     — drill-place broadcast
 ├── command/NodeCoreCommands       — /nodecore admin tools
+├── event/NodeMarkerHandler        — marker place/break ↔ SavedData sync
+├── worldgen/
+│   ├── NodeSpacingHints           — min/max spacing from config
+│   └── NodeWorldgenStub           — LOD placement hook (stub)
+├── datagen/NodeSpacingWorldgenProvider — emits node_spacing_hints.json
 └── registry/                      — blocks, items, creative tab
 ```
 
@@ -80,8 +85,13 @@ Membership test: `center.distSqr(pos) <= radius²`.
 - Survey scanner item
 - Node marker block (visual placeholder)
 
+**Phase 2 (current):**
+- Node marker block auto-registers/removes nodes on place/break
+- Worldgen spacing stub (`data/nodecore/worldgen/node_spacing_hints.json` via datagen)
+- `NodeSpacingHints` / `NodeWorldgenStub` for future LOD wiring
+
 **Out of scope (next phase):**
-- Procedural node placement at worldgen
+- Procedural node placement at worldgen (LOD hard dependency)
 - Ore stripping / biome purge (may remain in KubeJS or separate datapack)
 - Faction system integration
 - Guardian mob spawn binding
@@ -92,5 +102,5 @@ Membership test: `center.distSqr(pos) <= radius²`.
 |------------------------|----------------|
 | Seeds rot in open sky | `SurfaceSterilityHandler` + `sterilityEnabled` |
 | Growth only in lush nodes | `LushGrowthHandler` + `NodeQueries.isInLushNode` |
-| Nodes 2500–4000 apart | `minSpacing`/`maxSpacing` hints; enforcement TBD at worldgen |
+| Nodes 2500–4000 apart | `minSpacing`/`maxSpacing` in config + datagen stub; `NodeSpacingHints.violatesMinSpacing` for placement checks |
 | Drill placement alert | `ExtractionAlertHandler` + configurable `alertBlocks` |

@@ -1,3 +1,6 @@
 {
-  "parent": "nodecore:block/node_marker"
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "nodecore:block/node_marker"
+  }
 }

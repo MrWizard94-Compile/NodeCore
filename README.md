@@ -4,7 +4,7 @@ Base Wars utility mod for **Minecraft Forge 1.20.1** — strategic resource node
 
 Part of the [Base Wars: Build Anyway](https://github.com/MrWizard94-Compile) modpack vision. See `references/node-core-design.md` for design notes and `../Base_Warfare_Vision_Doc.md` for the full GDD.
 
-## Features (v0.1.0)
+## Features (v0.2.0)
 
 - **Node registry** — per-dimension saved data for ore and lush nodes with configurable radius
 - **Surface sterility** — blocks planting seeds/saplings on sky-exposed ground
@@ -12,6 +12,8 @@ Part of the [Base Wars: Build Anyway](https://github.com/MrWizard94-Compile) mod
 - **Extraction alerts** — server-wide warning when drill blocks are placed inside ore nodes
 - **Admin commands** — `/nodecore add|list|nearest|remove`
 - **Survey scanner** — creative-tab item to locate the nearest registered node
+- **Node marker block** — place to register a node, break to remove (configurable default type)
+- **Worldgen spacing stub** — datagen hints + `NodeSpacingHints` for future LOD wiring
 
 ## Build
 
@@ -35,6 +37,7 @@ Requires Java 17. Forge **47.3.7**, mappings **Parchment 2023.09.03-1.20.1**.
 | nodes | defaultRadius | 48 |
 | nodes | minSpacing | 2500 |
 | nodes | maxSpacing | 4000 |
+| nodes | markerDefaultType | ore_iron |
 
 ## Commands
 
@@ -52,7 +55,7 @@ Node types: `ore_iron`, `ore_copper`, `ore_brass`, `ore_quartz`, `lush_hydro`, `
 - Large Ore Deposits / worldgen integration for automatic node placement
 - In Control! spawn zone binding per node type
 - KubeJS bridge for pack-scripted alerts and rewards
-- Node marker block ↔ registry linking on place/break
+- Marker block state for per-type node registration (phase 3)
 
 ## Related Projects
 

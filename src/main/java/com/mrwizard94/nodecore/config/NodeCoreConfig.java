@@ -14,6 +14,7 @@ public final class NodeCoreConfig {
     public static final ForgeConfigSpec.IntValue DEFAULT_NODE_RADIUS;
     public static final ForgeConfigSpec.IntValue MIN_NODE_SPACING;
     public static final ForgeConfigSpec.IntValue MAX_NODE_SPACING;
+    public static final ForgeConfigSpec.ConfigValue<String> MARKER_DEFAULT_NODE_TYPE;
 
     static {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
@@ -52,6 +53,9 @@ public final class NodeCoreConfig {
         MAX_NODE_SPACING = builder
                 .comment("Maximum spacing hint for worldgen / manual placement (blocks).")
                 .defineInRange("maxSpacing", 4000, 1000, 30000);
+        MARKER_DEFAULT_NODE_TYPE = builder
+                .comment("Node type registered when a node_marker block is placed.")
+                .define("markerDefaultType", "ore_iron");
         builder.pop();
 
         COMMON_SPEC = builder.build();
