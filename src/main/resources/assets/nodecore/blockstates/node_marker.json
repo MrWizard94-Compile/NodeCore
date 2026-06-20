@@ -1,10 +1,10 @@
 {
   "variants": {
-    "node_type=ore_iron": { "model": "nodecore:block/node_marker" },
-    "node_type=ore_copper": { "model": "nodecore:block/node_marker" },
-    "node_type=ore_brass": { "model": "nodecore:block/node_marker" },
-    "node_type=ore_quartz": { "model": "nodecore:block/node_marker" },
-    "node_type=lush_hydro": { "model": "nodecore:block/node_marker" },
-    "node_type=quartz_rift": { "model": "nodecore:block/node_marker" }
+    "node_type=ore_iron": { "model": "nodecore:block/node_marker_ore_iron" },
+    "node_type=ore_copper": { "model": "nodecore:block/node_marker_ore_copper" },
+    "node_type=ore_brass": { "model": "nodecore:block/node_marker_ore_brass" },
+    "node_type=ore_quartz": { "model": "nodecore:block/node_marker_ore_quartz" },
+    "node_type=lush_hydro": { "model": "nodecore:block/node_marker_lush_hydro" },
+    "node_type=quartz_rift": { "model": "nodecore:block/node_marker_quartz_rift" }
   }
 }
