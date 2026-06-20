@@ -1,5 +1,10 @@
 {
   "variants": {
-    "": { "model": "nodecore:block/node_marker" }
+    "node_type=ore_iron": { "model": "nodecore:block/node_marker" },
+    "node_type=ore_copper": { "model": "nodecore:block/node_marker" },
+    "node_type=ore_brass": { "model": "nodecore:block/node_marker" },
+    "node_type=ore_quartz": { "model": "nodecore:block/node_marker" },
+    "node_type=lush_hydro": { "model": "nodecore:block/node_marker" },
+    "node_type=quartz_rift": { "model": "nodecore:block/node_marker" }
   }
 }

@@ -1,5 +1,6 @@
 {
   "block.nodecore.node_marker": "Node Marker",
+  "nodecore.marker.cycled_type": "Node type: %s",
   "item.nodecore.node_marker": "Node Marker",
   "item.nodecore.node_survey": "Node Survey Scanner",
   "itemGroup.nodecore": "Node Core",

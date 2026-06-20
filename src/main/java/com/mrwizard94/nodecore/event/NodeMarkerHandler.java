@@ -1,6 +1,7 @@
 package com.mrwizard94.nodecore.event;
 
 import com.mrwizard94.nodecore.NodeCore;
+import com.mrwizard94.nodecore.block.NodeMarkerBlock;
 import com.mrwizard94.nodecore.config.NodeCoreConfig;
 import com.mrwizard94.nodecore.data.NodeSavedData;
 import com.mrwizard94.nodecore.node.NodeType;
@@ -24,7 +25,8 @@ public final class NodeMarkerHandler {
             return;
         }
 
-        NodeType type = resolveMarkerType();
+        BlockState state = level.getBlockState(pos);
+        NodeType type = resolveMarkerType(state);
         int radius = type.getDefaultRadius() > 0
                 ? type.getDefaultRadius()
                 : NodeCoreConfig.DEFAULT_NODE_RADIUS.get();
@@ -48,7 +50,11 @@ public final class NodeMarkerHandler {
         return state.is(ModBlocks.NODE_MARKER.get());
     }
 
-    private static NodeType resolveMarkerType() {
+    private static NodeType resolveMarkerType(BlockState state) {
+        if (isNodeMarker(state) && state.hasProperty(NodeMarkerBlock.NODE_TYPE)) {
+            return state.getValue(NodeMarkerBlock.NODE_TYPE);
+        }
+
         try {
             return NodeType.byId(NodeCoreConfig.MARKER_DEFAULT_NODE_TYPE.get());
         } catch (IllegalArgumentException ex) {
