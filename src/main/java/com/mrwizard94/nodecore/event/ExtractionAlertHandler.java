@@ -41,19 +41,29 @@ public class ExtractionAlertHandler {
             return;
         }
 
-        String playerName = "Unknown";
+        ServerPlayer placingPlayer = null;
         Entity entity = event.getEntity();
         if (entity instanceof ServerPlayer player) {
-            playerName = player.getGameProfile().getName();
+            placingPlayer = player;
         }
 
         ResourceNode node = oreNode.get();
-        Component alert = Component.translatable(
+        String playerName = placingPlayer != null
+                ? placingPlayer.getGameProfile().getName()
+                : "Unknown";
+        Component defaultAlert = Component.translatable(
                 "nodecore.message.extraction_alert",
                 playerName,
                 pos.getX(),
                 pos.getZ()).withStyle(ChatFormatting.RED, ChatFormatting.BOLD);
 
+        ExtractionAlertEvent alertEvent = ExtractionAlertEvent.post(
+                serverLevel, pos, node, placingPlayer, defaultAlert);
+        if (alertEvent.isCanceled()) {
+            return;
+        }
+
+        Component alert = alertEvent.getAlertMessage();
         for (ServerPlayer player : serverLevel.players()) {
             player.displayClientMessage(alert, false);
         }

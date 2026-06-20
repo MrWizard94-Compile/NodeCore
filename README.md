@@ -50,11 +50,46 @@ Requires Java 17. Forge **47.3.7**, mappings **Parchment 2023.09.03-1.20.1**.
 
 Node types: `ore_iron`, `ore_copper`, `ore_brass`, `ore_quartz`, `lush_hydro`, `quartz_rift`
 
+## KubeJS (optional)
+
+When [KubeJS](https://www.curseforge.com/minecraft/mc-mods/kubejs) is installed, pack scripts can hook extraction alerts before they are broadcast to all players.
+
+| API | Value |
+|-----|-------|
+| Runtime check | `NodeKubeBridge.isKubeJsPresent()` |
+| Event class | `com.mrwizard94.nodecore.event.ExtractionAlertEvent` |
+
+Copy `examples/kubejs/nodecore_extraction_alert.js` into `kubejs/server_scripts/` and reload (`/reload`).
+
+**`ExtractionAlertEvent` fields (Java / script):**
+
+| Getter | Description |
+|--------|-------------|
+| `getLevel()` | `ServerLevel` where the drill was placed |
+| `getPos()` | Block position of the placed extraction block |
+| `getNode()` | `ResourceNode` containing the position |
+| `getPlayer()` | Placing `ServerPlayer`, or `null` if non-player |
+| `getAlertMessage()` / `setAlertMessage(Component)` | Mutable broadcast text (default from lang key `nodecore.message.extraction_alert`) |
+
+Call `event.cancel()` in a script to suppress the server-wide alert entirely.
+
+```javascript
+ForgeEvents.onEvent('com.mrwizard94.nodecore.event.ExtractionAlertEvent', event => {
+    if (event.getPlayer() != null && event.getPlayer().isCreative()) {
+        event.cancel()
+        return
+    }
+    event.setAlertMessage(Text.red('Custom drill warning!'))
+})
+```
+
+No compile-time KubeJS dependency — Node Core posts a standard Forge event on `MinecraftForge.EVENT_BUS`.
+
 ## Roadmap
 
 - Large Ore Deposits / worldgen integration for automatic node placement
 - In Control! spawn zone binding per node type
-- KubeJS bridge for pack-scripted alerts and rewards
+- Additional KubeJS hooks (rewards, spawn rules)
 - Marker block state for per-type node registration (phase 3)
 
 ## Related Projects
