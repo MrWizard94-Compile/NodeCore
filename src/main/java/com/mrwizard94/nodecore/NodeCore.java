@@ -6,6 +6,7 @@ import com.mrwizard94.nodecore.event.ExtractionAlertHandler;
 import com.mrwizard94.nodecore.event.LushGrowthHandler;
 import com.mrwizard94.nodecore.event.NodeLodEventHandler;
 import com.mrwizard94.nodecore.event.SurfaceSterilityHandler;
+import com.mrwizard94.nodecore.integration.NodeInControlBridge;
 import com.mrwizard94.nodecore.worldgen.NodeLodBridge;
 import com.mrwizard94.nodecore.worldgen.NodeLodComms;
 import com.mrwizard94.nodecore.registry.ModBlocks;
@@ -47,6 +48,12 @@ public class NodeCore {
             LOGGER.info("Large Ore Deposits detected — node registration bridge active.");
         } else {
             LOGGER.info("Large Ore Deposits not present — node bridge available via IMC and /nodecore link.");
+        }
+
+        if (NodeInControlBridge.isInControlPresent()) {
+            LOGGER.info("In Control detected — node spawn export available via /nodecore export incontrol.");
+        } else {
+            LOGGER.info("In Control not present — spawn rule export still available for manual pack merge.");
         }
         MinecraftForge.EVENT_BUS.addListener((RegisterCommandsEvent event) ->
                 NodeCoreCommands.register(event.getDispatcher()));

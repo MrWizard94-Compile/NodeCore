@@ -15,6 +15,8 @@ public final class NodeCoreConfig {
     public static final ForgeConfigSpec.IntValue MIN_NODE_SPACING;
     public static final ForgeConfigSpec.IntValue MAX_NODE_SPACING;
     public static final ForgeConfigSpec.ConfigValue<String> MARKER_DEFAULT_NODE_TYPE;
+    public static final ForgeConfigSpec.BooleanValue SPAWN_EXPORT_ENABLED;
+    public static final ForgeConfigSpec.ConfigValue<List<? extends String>> SPAWN_MOBS_BY_TYPE;
 
     static {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
@@ -56,6 +58,22 @@ public final class NodeCoreConfig {
         MARKER_DEFAULT_NODE_TYPE = builder
                 .comment("Node type registered when a node_marker block is placed.")
                 .define("markerDefaultType", "ore_iron");
+        builder.pop();
+
+        builder.push("incontrol");
+        SPAWN_EXPORT_ENABLED = builder
+                .comment("Allow /nodecore export incontrol to write In Control helper rule files.")
+                .define("spawnExportEnabled", true);
+        SPAWN_MOBS_BY_TYPE = builder
+                .comment("Mob id per node type for In Control spawner export (type=mob_id).")
+                .defineList("spawnMobsByType", List.of(
+                        "ore_iron=minecraft:zombie",
+                        "ore_copper=minecraft:husk",
+                        "ore_brass=minecraft:drowned",
+                        "ore_quartz=minecraft:zombified_piglin",
+                        "lush_hydro=minecraft:cave_spider",
+                        "quartz_rift=minecraft:blaze"
+                ), o -> o instanceof String);
         builder.pop();
 
         COMMON_SPEC = builder.build();

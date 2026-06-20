@@ -2,7 +2,7 @@
 
 **Mod ID:** `nodecore`  
 **Target:** Forge 1.20.1 (Base Wars pack)  
-**Status:** Phase 4 complete — LOD soft-optional bridge, marker linking, worldgen spacing stub, Omni32 textures
+**Status:** Phase 5 complete — In Control spawn export, KubeJS extraction alert bridge, LOD soft-optional bridge
 
 ## Purpose
 
@@ -33,6 +33,10 @@ NodeCore (main)
 │   ├── NodeDepositEvent           — runtime deposit-placed event
 │   └── NodeLodEventHandler        — deposit event → NodeLodBridge
 ├── command/NodeCoreCommands       — /nodecore admin tools
+├── integration/
+│   ├── NodeInControlBridge        — soft-optional In Control detection
+│   ├── NodeInControlExporter      — areas + spawner/spawn snippet export
+│   └── NodeKubeBridge             — soft-optional KubeJS detection
 ├── worldgen/
 │   ├── NodeSpacingHints           — min/max spacing from config
 │   ├── NodeWorldgenStub           — spacing gate for placement
@@ -77,7 +81,8 @@ Membership test: `center.distSqr(pos) <= radius²`.
 | System | Integration |
 |--------|-------------|
 | Large Ore Deposits | `NodeLodBridge` + `NodeDepositEvent` + IMC `nodecore:register_deposit` |
-| In Control! | Spawn rules keyed to node type + radius |
+| In Control! | `NodeInControlExporter` — bbox areas + spawner/spawn snippets per registered node |
+| KubeJS | `ExtractionAlertEvent` + `NodeKubeBridge` — cancel/customize extraction alerts |
 | KubeJS | Optional script hooks for custom alert formatting |
 | Create mechanical drill | Default extraction alert trigger block |
 
@@ -115,10 +120,34 @@ Membership test: `center.distSqr(pos) <= radius²`.
 
 Any key matching a `NodeType` id (case-insensitive) is also accepted.
 
+**Phase 5 (current):**
+- Soft-optional In Control bridge — no compile-time In Control dependency
+- `NodeInControlBridge.isInControlPresent()` checks mod ids: `incontrol`, `in_control`
+- `NodeInControlExporter` writes JSON arrays for all nodes in a `ServerLevel`:
+  - **Areas** (`nodecore_generated_areas.json`): bounding box per node with `name` (`nodecore_<type>_<id8>`), `dimension`, `xmin`–`zmax` (X/Z = center ± radius; Y = 0–320 for ore nodes, center ± radius for `lush_hydro`)
+  - **Spawner snippets** (`nodecore_generated_spawner.json`): per-node `spawner.json` add rules (mob from config, type template) plus `spawn.json` area filters referencing the area name (`incontrol` + `area` + `result: allow`)
+- Config: `incontrol.spawnExportEnabled`, `incontrol.spawnMobsByType` (`ore_iron=minecraft:zombie`, …)
+- `/nodecore export incontrol` — exports current dimension; reports paths + node count (permission 2)
+- Output path: `<gameDir>/config/incontrol/` via `FMLPaths.GAMEDIR.get()`
+- `ExtractionAlertEvent` on `MinecraftForge.EVENT_BUS` for KubeJS/script cancellation (`examples/kubejs/nodecore_extraction_alert.js`)
+
+**Default `spawnMobsByType` mapping:**
+
+| NodeType | Default mob |
+|----------|-------------|
+| `ore_iron` | `minecraft:zombie` |
+| `ore_copper` | `minecraft:husk` |
+| `ore_brass` | `minecraft:drowned` |
+| `ore_quartz` | `minecraft:zombified_piglin` |
+| `lush_hydro` | `minecraft:cave_spider` |
+| `quartz_rift` | `minecraft:blaze` |
+
+Pack maintainers merge generated snippets into live `areas.json` / `spawner.json` / `spawn.json`, then `/incontrol reload`.
+
 **Out of scope (next phase):**
 - Ore stripping / biome purge (may remain in KubeJS or separate datapack)
 - Faction system integration
-- Guardian mob spawn binding
+- Automatic re-export on node registry changes
 
 ## Config ↔ Vision Mapping
 

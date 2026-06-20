@@ -8,6 +8,7 @@ import com.mrwizard94.nodecore.config.NodeCoreConfig;
 import com.mrwizard94.nodecore.data.NodeSavedData;
 import com.mrwizard94.nodecore.node.NodeType;
 import com.mrwizard94.nodecore.node.ResourceNode;
+import com.mrwizard94.nodecore.integration.NodeInControlExporter;
 import com.mrwizard94.nodecore.worldgen.NodeLodBridge;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
@@ -52,7 +53,10 @@ public final class NodeCoreCommands {
                                 .executes(ctx -> linkDeposit(ctx, null))
                                 .then(Commands.argument("pos", BlockPosArgument.blockPos())
                                         .executes(ctx -> linkDeposit(ctx,
-                                                BlockPosArgument.getLoadedBlockPos(ctx, "pos")))))));
+                                                BlockPosArgument.getLoadedBlockPos(ctx, "pos"))))))
+                .then(Commands.literal("export")
+                        .then(Commands.literal("incontrol")
+                                .executes(NodeCoreCommands::exportInControl))));
     }
 
     private static int addNode(CommandContext<CommandSourceStack> ctx, BlockPos pos, Integer radius) {
@@ -176,6 +180,30 @@ public final class NodeCoreCommands {
                 type.getDisplayName(),
                 linkCenter.getX(), linkCenter.getY(), linkCenter.getZ()));
         return 0;
+    }
+
+    private static int exportInControl(CommandContext<CommandSourceStack> ctx) {
+        CommandSourceStack source = ctx.getSource();
+
+        if (!NodeCoreConfig.SPAWN_EXPORT_ENABLED.get()) {
+            source.sendFailure(Component.translatable("nodecore.command.export.incontrol.disabled"));
+            return 0;
+        }
+
+        try {
+            NodeInControlExporter.ExportResult result = NodeInControlExporter.export(source.getLevel());
+            source.sendSuccess(() -> Component.translatable("nodecore.command.export.incontrol.success",
+                    result.nodeCount(),
+                    result.areasPath().toString(),
+                    result.spawnerPath().toString()).withStyle(ChatFormatting.GREEN), true);
+            return result.nodeCount();
+        } catch (IllegalStateException e) {
+            source.sendFailure(Component.translatable("nodecore.command.export.incontrol.disabled"));
+            return 0;
+        } catch (Exception e) {
+            source.sendFailure(Component.translatable("nodecore.command.export.incontrol.failed", e.getMessage()));
+            return 0;
+        }
     }
 
     private static int removeNode(CommandContext<CommandSourceStack> ctx) {
