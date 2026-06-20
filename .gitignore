@@ -1,0 +1,45 @@
+# Gradle
+.gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# Eclipse
+.settings/
+bin/
+*.launch
+
+# Idea
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+
+# VS Code
+# We commit project-level VS Code configuration (.vscode/extensions.json, launch.json, tasks.json, etc.)
+# but you can still ignore personal settings if you want:
+# .vscode/settings.json
+# .vscode/launch.json
+# .vscode/tasks.json
+
+# MacOS
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# Minecraft / Forge run directory (generated)
+run/
+
+# Logs
+*.log
+
+# Misc
+*.class
+*.jar
+!gradle/wrapper/gradle-wrapper.jar
+*.zip
+
+# Local mod publishing folder
+mcmodsrepo/
