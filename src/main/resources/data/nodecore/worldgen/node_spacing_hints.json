@@ -1,0 +1,7 @@
+{
+  "integration": "large_ore_deposits_pending",
+  "max_spacing": 4000,
+  "min_spacing": 2500,
+  "notes": "Runtime spacing uses NodeCoreConfig minSpacing/maxSpacing; this file documents pack defaults.",
+  "status": "stub"
+}
