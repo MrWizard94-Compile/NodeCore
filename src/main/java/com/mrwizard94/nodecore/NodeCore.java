@@ -4,14 +4,17 @@ import com.mrwizard94.nodecore.command.NodeCoreCommands;
 import com.mrwizard94.nodecore.config.NodeCoreConfig;
 import com.mrwizard94.nodecore.event.ExtractionAlertHandler;
 import com.mrwizard94.nodecore.event.LushGrowthHandler;
-import com.mrwizard94.nodecore.event.NodeLodEventHandler;
 import com.mrwizard94.nodecore.event.SurfaceSterilityHandler;
 import com.mrwizard94.nodecore.integration.NodeInControlBridge;
-import com.mrwizard94.nodecore.worldgen.NodeLodBridge;
-import com.mrwizard94.nodecore.worldgen.NodeLodComms;
+import com.mrwizard94.nodecore.registry.ModArgumentTypes;
+import com.mrwizard94.nodecore.registry.ModBiomeModifiers;
+import com.mrwizard94.nodecore.blockentity.ModBlockEntities;
 import com.mrwizard94.nodecore.registry.ModBlocks;
 import com.mrwizard94.nodecore.registry.ModCreativeTabs;
+import com.mrwizard94.nodecore.registry.ModFluidTypes;
+import com.mrwizard94.nodecore.registry.ModFluids;
 import com.mrwizard94.nodecore.registry.ModItems;
+import com.mrwizard94.nodecore.network.NodeCoreNetwork;
 import com.mojang.logging.LogUtils;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegisterCommandsEvent;
@@ -30,24 +33,25 @@ public class NodeCore {
     public NodeCore() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
+        ModFluidTypes.FLUID_TYPES.register(modEventBus);
+        ModFluids.FLUIDS.register(modEventBus);
         ModBlocks.BLOCKS.register(modEventBus);
+        ModBlockEntities.BLOCK_ENTITIES.register(modEventBus);
         ModItems.ITEMS.register(modEventBus);
         ModCreativeTabs.CREATIVE_TABS.register(modEventBus);
+        ModBiomeModifiers.SERIALIZERS.register(modEventBus);
+        ModArgumentTypes.ARGUMENT_TYPES.register(modEventBus);
 
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, NodeCoreConfig.COMMON_SPEC);
 
-        modEventBus.addListener(NodeLodComms::processImc);
+        NodeCoreNetwork.register();
 
         MinecraftForge.EVENT_BUS.register(new SurfaceSterilityHandler());
         MinecraftForge.EVENT_BUS.register(new LushGrowthHandler());
         MinecraftForge.EVENT_BUS.register(new ExtractionAlertHandler());
-        MinecraftForge.EVENT_BUS.register(new NodeLodEventHandler());
-        MinecraftForge.EVENT_BUS.register(NodeLodComms.class);
 
-        if (NodeLodBridge.isLodPresent()) {
-            LOGGER.info("Large Ore Deposits detected — node registration bridge active.");
-        } else {
-            LOGGER.info("Large Ore Deposits not present — node bridge available via IMC and /nodecore link.");
+        if (NodeCoreConfig.ORE_NODE_WORLDGEN_ENABLED.getDefault()) {
+            LOGGER.info("Ore-node worldgen enabled — clustered typed/tiered fixtures.");
         }
 
         if (NodeInControlBridge.isInControlPresent()) {
@@ -55,6 +59,19 @@ public class NodeCore {
         } else {
             LOGGER.info("In Control not present — spawn rule export still available for manual pack merge.");
         }
+
+        if (NodeCoreConfig.DEAD_WORLD_ENABLED.getDefault()) {
+            LOGGER.info("Dead-world biome strip enabled — new overworld chunks generate without surface vegetation.");
+        }
+
+        if (NodeCoreConfig.EXTRACTOR_ENABLED.getDefault()) {
+            LOGGER.info("Ore extractor multiblocks enabled — Create rotational drive with fuel ladder and buffer backpressure.");
+        }
+
+        if (NodeCoreConfig.LUSH_CAVERN_WORLDGEN_ENABLED.getDefault()) {
+            LOGGER.info("Lush cavern worldgen enabled — massive sub-zero farming strongholds with 3D volume membership.");
+        }
+
         MinecraftForge.EVENT_BUS.addListener((RegisterCommandsEvent event) ->
                 NodeCoreCommands.register(event.getDispatcher()));
 

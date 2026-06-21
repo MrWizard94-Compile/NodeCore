@@ -1,0 +1,5 @@
+{
+  "variants": {
+    "": { "model": "nodecore:block/ore_extractor_frame" }
+  }
+}

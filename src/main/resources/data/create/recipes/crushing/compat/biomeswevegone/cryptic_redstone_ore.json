@@ -1,0 +1,33 @@
+{
+  "type": "create:crushing",
+  "conditions": [
+    {
+      "type": "forge:mod_loaded",
+      "modid": "biomeswevegone"
+    }
+  ],
+  "ingredients": [
+    {
+      "item": "biomeswevegone:cryptic_redstone_ore"
+    }
+  ],
+  "processingTime": 250,
+  "results": [
+    {
+      "item": "minecraft:redstone",
+      "chance": 0.9
+    },
+    {
+      "item": "minecraft:redstone",
+      "chance": 0.075
+    },
+    {
+      "item": "create:experience_nugget",
+      "chance": 0.112
+    },
+    {
+      "chance": 0.125,
+      "item": "biomeswevegone:cryptic_stone"
+    }
+  ]
+}

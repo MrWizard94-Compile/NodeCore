@@ -1,0 +1,4 @@
+{
+  "type": "nodecore:dead_world_strip",
+  "biomes": "#minecraft:is_overworld"
+}

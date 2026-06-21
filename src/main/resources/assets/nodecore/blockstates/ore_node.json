@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "node_type=ore_iron,tier=1": { "model": "nodecore:block/ore_node_ore_iron" },
+    "node_type=ore_iron,tier=2": { "model": "nodecore:block/ore_node_ore_iron" },
+    "node_type=ore_iron,tier=3": { "model": "nodecore:block/ore_node_ore_iron" },
+    "node_type=ore_copper,tier=1": { "model": "nodecore:block/ore_node_ore_copper" },
+    "node_type=ore_copper,tier=2": { "model": "nodecore:block/ore_node_ore_copper" },
+    "node_type=ore_copper,tier=3": { "model": "nodecore:block/ore_node_ore_copper" },
+    "node_type=ore_brass,tier=1": { "model": "nodecore:block/ore_node_ore_brass" },
+    "node_type=ore_brass,tier=2": { "model": "nodecore:block/ore_node_ore_brass" },
+    "node_type=ore_brass,tier=3": { "model": "nodecore:block/ore_node_ore_brass" },
+    "node_type=ore_quartz,tier=1": { "model": "nodecore:block/ore_node_ore_quartz" },
+    "node_type=ore_quartz,tier=2": { "model": "nodecore:block/ore_node_ore_quartz" },
+    "node_type=ore_quartz,tier=3": { "model": "nodecore:block/ore_node_ore_quartz" },
+    "node_type=quartz_rift,tier=1": { "model": "nodecore:block/ore_node_ore_quartz" },
+    "node_type=quartz_rift,tier=2": { "model": "nodecore:block/ore_node_ore_quartz" },
+    "node_type=quartz_rift,tier=3": { "model": "nodecore:block/ore_node_ore_quartz" }
+  }
+}

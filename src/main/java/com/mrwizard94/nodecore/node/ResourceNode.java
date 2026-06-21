@@ -12,16 +12,22 @@ public final class ResourceNode {
     private final NodeType type;
     private final BlockPos center;
     private final int radius;
+    private final int tier;
 
-    public ResourceNode(UUID id, NodeType type, BlockPos center, int radius) {
+    public ResourceNode(UUID id, NodeType type, BlockPos center, int radius, int tier) {
         this.id = Objects.requireNonNull(id, "id");
         this.type = Objects.requireNonNull(type, "type");
         this.center = Objects.requireNonNull(center, "center").immutable();
         this.radius = Math.max(8, radius);
+        this.tier = clampTier(tier);
     }
 
     public static ResourceNode create(NodeType type, BlockPos center, int radius) {
-        return new ResourceNode(UUID.randomUUID(), type, center, radius);
+        return create(type, center, radius, 1);
+    }
+
+    public static ResourceNode create(NodeType type, BlockPos center, int radius, int tier) {
+        return new ResourceNode(UUID.randomUUID(), type, center, radius, tier);
     }
 
     public UUID getId() {
@@ -38,6 +44,10 @@ public final class ResourceNode {
 
     public int getRadius() {
         return radius;
+    }
+
+    public int getTier() {
+        return tier;
     }
 
     public boolean contains(BlockPos pos) {
@@ -58,6 +68,7 @@ public final class ResourceNode {
         tag.putString("Type", type.getId());
         tag.putLong("Center", center.asLong());
         tag.putInt("Radius", radius);
+        tag.putInt("Tier", tier);
         return tag;
     }
 
@@ -66,7 +77,8 @@ public final class ResourceNode {
         NodeType type = NodeType.byId(tag.getString("Type"));
         BlockPos center = BlockPos.of(tag.getLong("Center"));
         int radius = tag.getInt("Radius");
-        return new ResourceNode(id, type, center, radius);
+        int tier = tag.contains("Tier") ? tag.getInt("Tier") : 1;
+        return new ResourceNode(id, type, center, radius, tier);
     }
 
     public void writeToBuffer(FriendlyByteBuf buf) {
@@ -74,6 +86,7 @@ public final class ResourceNode {
         buf.writeUtf(type.getId());
         buf.writeBlockPos(center);
         buf.writeVarInt(radius);
+        buf.writeVarInt(tier);
     }
 
     public static ResourceNode readFromBuffer(FriendlyByteBuf buf) {
@@ -81,7 +94,12 @@ public final class ResourceNode {
                 buf.readUUID(),
                 NodeType.byId(buf.readUtf()),
                 buf.readBlockPos(),
+                buf.readVarInt(),
                 buf.readVarInt()
         );
+    }
+
+    private static int clampTier(int tier) {
+        return Math.max(1, Math.min(3, tier));
     }
 }

@@ -1,0 +1,27 @@
+{
+  "type": "create:crushing",
+  "ingredients": [
+    {
+      "item": "minecraft:deepslate_coal_ore"
+    }
+  ],
+  "processingTime": 300,
+  "results": [
+    {
+      "item": "minecraft:coal",
+      "chance": 0.3
+    },
+    {
+      "item": "minecraft:coal",
+      "chance": 0.038
+    },
+    {
+      "item": "create:experience_nugget",
+      "chance": 0.112
+    },
+    {
+      "chance": 0.125,
+      "item": "minecraft:cobbled_deepslate"
+    }
+  ]
+}

@@ -19,6 +19,9 @@ public final class ModCreativeTabs {
                     .displayItems((params, output) -> {
                         output.accept(ModItems.NODE_MARKER.get());
                         output.accept(ModItems.NODE_SURVEY.get());
+                        output.accept(ModItems.LIQUID_FIRE_BUCKET.get());
+                        output.accept(ModItems.ORE_EXTRACTOR_CORE.get());
+                        output.accept(ModItems.ORE_EXTRACTOR_FRAME.get());
                     })
                     .build());
 

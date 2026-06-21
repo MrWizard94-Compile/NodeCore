@@ -35,7 +35,11 @@ public class NodeSavedData extends SavedData {
     }
 
     public ResourceNode addNode(NodeType type, BlockPos center, int radius) {
-        ResourceNode node = ResourceNode.create(type, center, radius);
+        return addNode(type, center, radius, 1);
+    }
+
+    public ResourceNode addNode(NodeType type, BlockPos center, int radius, int tier) {
+        ResourceNode node = ResourceNode.create(type, center, radius, tier);
         nodes.add(node);
         setDirty();
         return node;

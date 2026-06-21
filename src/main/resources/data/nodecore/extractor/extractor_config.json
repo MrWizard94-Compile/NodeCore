@@ -1,0 +1,6 @@
+{
+  "version": 1,
+  "notes": "Runtime tuning uses NodeCoreConfig extractor.* keys. Multiblock: ore_extractor_core adjacent to ore_node with ore_extractor_frame on four horizontal neighbors. One core per node enforced via ExtractorRegistry.",
+  "fuel_ladder": ["charcoal", "coal", "lava", "liquid_fire"],
+  "create_drive": "neighbor KineticBlockEntity RPM via CreateKineticBridge reflection"
+}

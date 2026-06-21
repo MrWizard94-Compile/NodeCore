@@ -1,0 +1,19 @@
+{
+  "status": "active",
+  "integration": "ore_node_chunk_pass",
+  "notes": "Runtime ore-node placement uses NodeCoreConfig oreWorldgen.* and nodes.minSpacing. Geographic metal clusters via biomeMetalTypes + clusterSize hash fallback. Output tiers stored on ResourceNode.tier for extractor child 2.",
+  "config_keys": [
+    "oreWorldgen.enabled",
+    "oreWorldgen.frequency",
+    "oreWorldgen.clusterSize",
+    "oreWorldgen.minY",
+    "oreWorldgen.maxY",
+    "oreWorldgen.tier1Weight",
+    "oreWorldgen.tier2Weight",
+    "oreWorldgen.tier3Weight",
+    "oreWorldgen.metalTypes",
+    "oreWorldgen.biomeMetalTypes",
+    "nodes.minSpacing",
+    "nodes.maxSpacing"
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "type": "create:crushing",
+  "ingredients": [
+    {
+      "tag": "forge:raw_materials/gold"
+    }
+  ],
+  "processingTime": 400,
+  "results": [
+    {
+      "item": "create:crushed_raw_gold",
+      "chance": 0.15
+    },
+    {
+      "item": "create:experience_nugget",
+      "chance": 0.225
+    }
+  ]
+}

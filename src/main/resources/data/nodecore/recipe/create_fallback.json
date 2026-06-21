@@ -1,0 +1,14 @@
+{
+  "outputMultiplier": 0.15,
+  "minimumChance": 0.02,
+  "categories": [
+    "crushing",
+    "milling",
+    "splashing",
+    "haunting"
+  ],
+  "notes": "Base Wars §1.6 fallback economy. Datapack overrides scale metal/resource yields by outputMultiplier. Regenerate recipe overrides via build-create-nerf.mjs when tuning.",
+  "generated_at": "2026-06-21T01:56:34.330Z",
+  "create_ref": "mc1.20.1/dev",
+  "recipe_override_count": 191
+}

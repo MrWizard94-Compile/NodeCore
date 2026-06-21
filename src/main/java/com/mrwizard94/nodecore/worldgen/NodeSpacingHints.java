@@ -7,8 +7,7 @@ import net.minecraft.core.BlockPos;
 import java.util.List;
 
 /**
- * Spacing helpers for future worldgen / Large Ore Deposits integration.
- * Datagen emits matching defaults in {@code data/nodecore/worldgen/node_spacing_hints.json}.
+ * Spacing helpers for ore-node worldgen and manual node placement.
  */
 public final class NodeSpacingHints {
     private NodeSpacingHints() {}

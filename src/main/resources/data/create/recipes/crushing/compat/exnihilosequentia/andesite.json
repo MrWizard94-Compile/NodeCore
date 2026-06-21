@@ -1,0 +1,21 @@
+{
+  "type": "create:crushing",
+  "conditions": [
+    {
+      "type": "forge:mod_loaded",
+      "modid": "exnihilosequentia"
+    }
+  ],
+  "ingredients": [
+    {
+      "item": "minecraft:andesite"
+    }
+  ],
+  "processingTime": 350,
+  "results": [
+    {
+      "item": "exnihilosequentia:crushed_andesite",
+      "chance": 0.15
+    }
+  ]
+}

@@ -70,6 +70,7 @@ public class NodeMarkerBlock extends Block {
         return InteractionResult.SUCCESS;
     }
 
+    @Deprecated // overriding deprecated vanilla hook (Forge-sanctioned); super-call required for vanilla behavior
     @Override
     public void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean isMoving) {
         super.onPlace(state, level, pos, oldState, isMoving);
@@ -78,6 +79,7 @@ public class NodeMarkerBlock extends Block {
         }
     }
 
+    @Deprecated // overriding deprecated vanilla hook (Forge-sanctioned); super-call required for vanilla behavior
     @Override
     public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
         if (!state.is(newState.getBlock())) {

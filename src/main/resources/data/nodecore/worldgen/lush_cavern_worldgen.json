@@ -1,0 +1,16 @@
+{
+  "enabled": true,
+  "frequency": 0.12,
+  "gridSpacing": 2048,
+  "minY": -56,
+  "maxY": -8,
+  "minHorizontalRadius": 48,
+  "maxHorizontalRadius": 96,
+  "minVerticalRadius": 24,
+  "maxVerticalRadius": 40,
+  "floraDensity": 0.35,
+  "treeDensity": 0.08,
+  "mossDensity": 0.25,
+  "registerTerritory": true,
+  "territoryPadding": 16
+}

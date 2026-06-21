@@ -9,7 +9,6 @@ import com.mrwizard94.nodecore.data.NodeSavedData;
 import com.mrwizard94.nodecore.node.NodeType;
 import com.mrwizard94.nodecore.node.ResourceNode;
 import com.mrwizard94.nodecore.integration.NodeInControlExporter;
-import com.mrwizard94.nodecore.worldgen.NodeLodBridge;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -48,12 +47,6 @@ public final class NodeCoreCommands {
                 .then(Commands.literal("remove")
                         .then(Commands.argument("id", StringArgumentType.string())
                                 .executes(NodeCoreCommands::removeNode)))
-                .then(Commands.literal("link")
-                        .then(Commands.argument("type", NodeTypeArgument.nodeType())
-                                .executes(ctx -> linkDeposit(ctx, null))
-                                .then(Commands.argument("pos", BlockPosArgument.blockPos())
-                                        .executes(ctx -> linkDeposit(ctx,
-                                                BlockPosArgument.getLoadedBlockPos(ctx, "pos"))))))
                 .then(Commands.literal("export")
                         .then(Commands.literal("incontrol")
                                 .executes(NodeCoreCommands::exportInControl))));
@@ -105,9 +98,10 @@ public final class NodeCoreCommands {
         nodes.stream()
                 .sorted(Comparator.comparing(n -> n.getType().getId()))
                 .forEach(node -> source.sendSuccess(() -> Component.literal(String.format(
-                        "  [%s] %s @ (%d, %d, %d) r=%d",
+                        "  [%s] %s tier=%d @ (%d, %d, %d) r=%d",
                         node.getId().toString().substring(0, 8),
                         node.getType().getId(),
+                        node.getTier(),
                         node.getCenter().getX(),
                         node.getCenter().getY(),
                         node.getCenter().getZ(),
@@ -145,41 +139,6 @@ public final class NodeCoreCommands {
                 node.getRadius(),
                 node.getId().toString().substring(0, 8)).withStyle(ChatFormatting.AQUA), false);
         return 1;
-    }
-
-    private static int linkDeposit(CommandContext<CommandSourceStack> ctx, BlockPos pos) {
-        CommandSourceStack source = ctx.getSource();
-        ServerLevel level = source.getLevel();
-        NodeType type = NodeTypeArgument.getNodeType(ctx, "type");
-
-        BlockPos center = pos;
-        if (center == null) {
-            if (!(source.getEntity() instanceof ServerPlayer player)) {
-                source.sendFailure(Component.literal("Position required when not run by a player."));
-                return 0;
-            }
-            center = player.blockPosition();
-        }
-
-        final BlockPos linkCenter = center;
-
-        if (NodeLodBridge.registerDeposit(level, linkCenter, type.getId())) {
-            source.sendSuccess(() -> Component.translatable("nodecore.command.linked",
-                    type.getDisplayName(),
-                    linkCenter.getX(), linkCenter.getY(), linkCenter.getZ()).withStyle(ChatFormatting.GREEN), true);
-            return 1;
-        }
-
-        if (NodeSavedData.get(level).findByCenter(linkCenter).isPresent()) {
-            source.sendFailure(Component.translatable("nodecore.command.link.already_linked", linkCenter.getX(),
-                    linkCenter.getY(), linkCenter.getZ()));
-            return 0;
-        }
-
-        source.sendFailure(Component.translatable("nodecore.command.link.rejected",
-                type.getDisplayName(),
-                linkCenter.getX(), linkCenter.getY(), linkCenter.getZ()));
-        return 0;
     }
 
     private static int exportInControl(CommandContext<CommandSourceStack> ctx) {

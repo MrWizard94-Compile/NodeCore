@@ -1,0 +1,23 @@
+{
+  "type": "create:crushing",
+  "ingredients": [
+    {
+      "item": "minecraft:amethyst_cluster"
+    }
+  ],
+  "processingTime": 150,
+  "results": [
+    {
+      "item": "minecraft:amethyst_shard",
+      "count": 1
+    },
+    {
+      "item": "minecraft:amethyst_shard",
+      "chance": 0.05
+    },
+    {
+      "item": "minecraft:amethyst_shard",
+      "chance": 0.075
+    }
+  ]
+}

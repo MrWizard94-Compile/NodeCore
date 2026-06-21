@@ -1,0 +1,32 @@
+{
+  "type": "create:crushing",
+  "conditions": [
+    {
+      "type": "forge:not",
+      "value": {
+        "type": "forge:tag_empty",
+        "tag": "forge:ores/silver"
+      }
+    }
+  ],
+  "ingredients": [
+    {
+      "tag": "forge:ores/silver"
+    }
+  ],
+  "processingTime": 400,
+  "results": [
+    {
+      "item": "create:crushed_raw_silver",
+      "chance": 0.15
+    },
+    {
+      "item": "create:crushed_raw_silver",
+      "chance": 0.112
+    },
+    {
+      "item": "create:experience_nugget",
+      "chance": 0.112
+    }
+  ]
+}

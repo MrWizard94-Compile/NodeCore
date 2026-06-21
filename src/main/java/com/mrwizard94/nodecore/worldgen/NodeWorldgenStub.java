@@ -6,7 +6,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 
 /**
- * Spacing gate for procedural node placement. {@link NodeLodBridge} calls this before registering LOD deposits.
+ * Spacing gate for procedural ore-node placement.
  */
 public final class NodeWorldgenStub {
     private NodeWorldgenStub() {}

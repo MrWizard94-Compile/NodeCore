@@ -1,0 +1,31 @@
+{
+  "type": "create:crushing",
+  "ingredients": [
+    {
+      "item": "minecraft:deepslate_lapis_ore"
+    }
+  ],
+  "processingTime": 350,
+  "results": [
+    {
+      "item": "minecraft:lapis_lazuli",
+      "count": 1
+    },
+    {
+      "item": "minecraft:lapis_lazuli",
+      "chance": 0.8
+    },
+    {
+      "item": "minecraft:lapis_lazuli",
+      "chance": 0.075
+    },
+    {
+      "item": "create:experience_nugget",
+      "chance": 0.112
+    },
+    {
+      "chance": 0.125,
+      "item": "minecraft:cobbled_deepslate"
+    }
+  ]
+}

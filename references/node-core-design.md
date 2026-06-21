@@ -1,50 +1,80 @@
 # Node Core — Design Reference
 
 **Mod ID:** `nodecore`  
-**Target:** Forge 1.20.1 (Base Wars pack)  
-**Status:** Phase 5 complete — In Control spawn export, KubeJS extraction alert bridge, LOD soft-optional bridge
+**Target:** Forge 1.20.1 / 47.3.7 (Base Wars pack)  
+**Status:** Base Wars overhaul complete — extractor-node economy, lush caverns, growth booster, Liquid Fire fuel, dead-world surface. The legacy AdLods / Large-Ore-Deposit LOD-mirroring stack has been **removed** (superseded by the extractor-node economy).
+
+Canonical design spec: `JanusPrime/references/basewars-overhaul-spec.md`. Full GDD: `C:\Projects\references\Base_Warfare_Vision_Doc.md`.
 
 ## Purpose
 
-Node Core implements the **Node Warfare** layer from the Base Wars vision document:
+Node Core implements the **Node Warfare** layer from the Base Wars vision:
 
-1. **Strategic extraction nodes** — hyper-dense ore deposits at fixed coordinates (~2500–4000 block spacing)
-2. **Mega-Lush Hydro-Nodes** — underground agriculture zones with accelerated growth
-3. **Surface sterility** — open-sky planting blocked (smog-choked dead world)
-4. **Extraction alerts** — global broadcast when drilling begins at an ore node
+1. **Strategic ore nodes** — indestructible, permanent node fixtures generated in geographic metal-type clusters; harvested only via a player-built extractor multiblock (one per node).
+2. **Mega-Lush underground caverns** — massive lush caverns below Y 0 with accelerated plant/tree growth; contested territory.
+3. **Surface sterility / dead world** — open-sky planting blocked; surface grass renders uniformly dead-tan, lush cavern volumes stay green.
+4. **Extractor economy** — Create rotational power drives extraction; fuel ladder (charcoal < coal < lava < Liquid Fire) boosts output; Create grinding/washing/haunting outputs severely nerfed to make extraction the survivable path.
+5. **Extraction alerts** — global broadcast when drilling begins at an ore node.
 
-Full GDD: `C:\Projects\Base_Warfare_Vision_Doc.md` (sections 3–4).
-
-## Architecture
+## Architecture (current)
 
 ```
-NodeCore (main)
-├── config/NodeCoreConfig          — Forge common config
-├── data/NodeSavedData             — per-dimension node registry (SavedData)
+NodeCore (root: NodeCore.java)
+├── config/NodeCoreConfig            — Forge common config (all tunables)
 ├── node/
-│   ├── NodeType                   — ore_iron, lush_hydro, etc.
-│   ├── ResourceNode               — UUID, center, radius, NBT
-│   └── NodeQueries                — level-scoped lookup helpers
-├── event/
-│   ├── SurfaceSterilityHandler    — cancel sky-exposed planting
-│   ├── LushGrowthHandler          — tick-based growth boost in lush nodes
-│   ├── ExtractionAlertHandler     — drill-place broadcast
-│   ├── NodeMarkerHandler          — marker place/break ↔ SavedData sync
-│   ├── NodeDepositEvent           — runtime deposit-placed event
-│   └── NodeLodEventHandler        — deposit event → NodeLodBridge
-├── command/NodeCoreCommands       — /nodecore admin tools
-├── integration/
-│   ├── NodeInControlBridge        — soft-optional In Control detection
-│   ├── NodeInControlExporter      — areas + spawner/spawn snippet export
-│   └── NodeKubeBridge             — soft-optional KubeJS detection
+│   ├── NodeType                     — ore_iron, lush_hydro, etc.
+│   ├── ResourceNode                 — UUID, center, radius, NBT
+│   └── NodeQueries                  — level-scoped lookups; canonical isInLushCavern / isInLushNode
+├── data/
+│   ├── NodeSavedData                — per-dimension node registry
+│   ├── LushCavernSavedData          — generated lush-cavern volumes (3D)
+│   ├── LushCavernVolume             — region-bounds volume record
+│   └── LiquidFireCollectionData     — cauldron Liquid Fire collection state
+├── block/
+│   ├── NodeMarkerBlock              — marker place/break ↔ SavedData sync
+│   ├── node/OreNodeBlock            — indestructible ore-node fixture
+│   ├── fluid/LiquidFireBlock        — Liquid Fire fluid block (Forge Supplier ctor)
+│   └── extractor/                   — ExtractorRegistry, ExtractorMultiblockValidator,
+│                                      ExtractorFuelTier, ExtractorOutputCatalog,
+│                                      OreExtractorCoreBlock, OreExtractorFrameBlock
+├── blockentity/                     — ModBlockEntities, OreExtractorCoreBlockEntity (fluid/energy)
 ├── worldgen/
-│   ├── NodeSpacingHints           — min/max spacing from config
-│   ├── NodeWorldgenStub           — spacing gate for placement
-│   ├── NodeLodBridge              — soft-optional LOD detection + deposit→node registration
-│   └── NodeLodComms               — IMC channel `nodecore:register_deposit`
-├── datagen/NodeSpacingWorldgenProvider — emits node_spacing_hints.json
-└── registry/                      — blocks, items, creative tab
+│   ├── OreNodeClusterMap            — geographic metal-type cluster regions
+│   ├── OreNodePlacer                — ore-node fixture placement
+│   ├── LushCavernGrid               — cavern site grid (below Y 0)
+│   ├── LushCavernPlacer             — cavern carve + flora/tree population
+│   ├── DeadWorldBiomeModifier       — dead-world surface biome strip
+│   ├── NodeSpacingHints             — min/max spacing helpers (kept; ore-node spacing)
+│   └── NodeWorldgenStub             — spacing gate for placement (kept)
+├── event/
+│   ├── SurfaceSterilityHandler      — cancel sky-exposed planting
+│   ├── DeadWorldGrowthHandler       — growth allowed in lush node ∪ cavern volumes
+│   ├── LushGrowthHandler            — growth-tick booster (3D cavern sampling via isInLushCavern)
+│   ├── OreNodeHandler               — ore-node place/break registry sync
+│   ├── OreNodeChunkHandler          — chunk-load ore-node hydration
+│   ├── OreNodeNoBuildAuraHandler    — no-block-placement aura around nodes (whitelists extractor parts)
+│   ├── OreNodeProtectionHandler     — node fixture indestructibility
+│   ├── LushCavernChunkHandler       — cavern volume chunk hydration
+│   ├── LushCavernSyncHandler        — cavern volume client sync
+│   ├── LiquidFireCollectionHandler  — cauldron-under-soulsand collection
+│   ├── LiquidFireFuelHandler        — Liquid Fire as top-tier extractor fuel
+│   ├── NodeMarkerHandler            — marker ↔ SavedData sync
+│   ├── ExtractionAlertEvent / ExtractionAlertHandler — drill-place broadcast (KubeJS-cancellable)
+├── network/                         — NodeCoreNetwork, LushCavernVolumesPacket (volume sync)
+├── client/                          — NodeCoreClient, DeadWorldGrassColors, DeadWorldTintRules
+│                                      (surface dead-tan tint), LushCavernClientCache, LushCavernTintQueries
+├── integration/
+│   ├── create/                      — CreateKineticBridge, CreateModProbe (soft-optional rotational power)
+│   ├── dynamictrees/                — DynamicTreesBridge, DynamicTreesGrowthBoost, DynamicTreesModProbe
+│   ├── NodeInControlBridge / NodeInControlExporter — soft-optional In Control spawn export
+│   └── NodeKubeBridge               — soft-optional KubeJS detection
+├── command/NodeCoreCommands         — /nodecore admin tools (add/export; legacy /link removed)
+├── item/NodeSurveyItem              — survey scanner
+└── registry/                        — ModBlocks, ModItems, ModFluids, ModFluidTypes,
+                                       ModBlockEntities, ModBiomeModifiers, ModArgumentTypes, ModCreativeTabs
 ```
+
+All third-party hooks (Create, Dynamic Trees, In Control, KubeJS) are **soft-optional** — mod-presence/probe checks, no compile-time dependency.
 
 ## Node Types
 
@@ -54,106 +84,27 @@ NodeCore (main)
 | `ore_copper` | ORE | 112 | Copper Basin |
 | `ore_brass` | ORE | 120 | Brass Basin |
 | `ore_quartz` | ORE | 96 | Nether quartz deposits |
-| `lush_hydro` | LUSH | 160 | Mega-Lush Cave agriculture |
+| `lush_hydro` | LUSH | 160 | Mega-Lush cavern agriculture |
 | `quartz_rift` | ORE | 144 | Volcanic rift (Stage 4 portals) |
 
 ## Data Model
 
-Nodes persist in `nodecore_nodes` SavedData per `ServerLevel`:
-
-```json
-{
-  "Nodes": [
-    {
-      "Id": "<uuid>",
-      "Type": "ore_iron",
-      "Center": "<blockpos long>",
-      "Radius": 128
-    }
-  ]
-}
-```
-
-Membership test: `center.distSqr(pos) <= radius²`.
-
-## Integration Points
-
-| System | Integration |
-|--------|-------------|
-| Large Ore Deposits | `NodeLodBridge` + `NodeDepositEvent` + IMC `nodecore:register_deposit` |
-| In Control! | `NodeInControlExporter` — bbox areas + spawner/spawn snippets per registered node |
-| KubeJS | `ExtractionAlertEvent` + `NodeKubeBridge` — cancel/customize extraction alerts |
-| KubeJS | Optional script hooks for custom alert formatting |
-| Create mechanical drill | Default extraction alert trigger block |
-
-## v0.1.0 Scope
-
-**In scope:**
-- Manual node registration via commands
-- Surface sterility + lush growth + extraction alerts
-- Survey scanner item
-- Node marker block (visual placeholder)
-
-**Phase 2 (current):**
-- Node marker block auto-registers/removes nodes on place/break
-- Worldgen spacing stub (`data/nodecore/worldgen/node_spacing_hints.json` via datagen)
-- `NodeSpacingHints` / `NodeWorldgenStub` for future LOD wiring
-
-**Phase 4 (current):**
-- Soft-optional Large Ore Deposits bridge — no compile-time LOD dependency
-- `NodeLodBridge.isLodPresent()` checks mod ids: `lode`, `largeoredeposits`, `large_ore_deposits`
-- `NodeLodBridge.registerDeposit(level, center, depositType)` maps deposit strings → `NodeType`, runs `NodeWorldgenStub.shouldPlaceNode`, then `NodeSavedData.addNode` with default radius
-- `NodeDepositEvent` on `MinecraftForge.EVENT_BUS` for runtime deposit hooks
-- `NodeLodComms` processes IMC `nodecore:register_deposit` (NBT: `X`/`Y`/`Z` + `Type` or `DepositType`, optional `Dimension`; or string `x,y,z,type[,dimension]`)
-- `/nodecore link <type> [pos]` — manual deposit link for pack testing without LOD
-
-**LOD deposit type → NodeType mapping:**
-
-| Deposit type key(s) | NodeType |
-|---------------------|----------|
-| `iron`, `iron_deposit`, `iron_sump`, `ore_iron` | `ore_iron` |
-| `copper`, `copper_deposit`, `copper_basin`, `ore_copper` | `ore_copper` |
-| `brass`, `brass_deposit`, `brass_basin`, `ore_brass` | `ore_brass` |
-| `quartz`, `nether_quartz`, `quartz_vein`, `ore_quartz` | `ore_quartz` |
-| `lush`, `lush_hydro`, `hydro`, `mega_lush` | `lush_hydro` |
-| `quartz_rift`, `rift`, `volcanic_rift` | `quartz_rift` |
-
-Any key matching a `NodeType` id (case-insensitive) is also accepted.
-
-**Phase 5 (current):**
-- Soft-optional In Control bridge — no compile-time In Control dependency
-- `NodeInControlBridge.isInControlPresent()` checks mod ids: `incontrol`, `in_control`
-- `NodeInControlExporter` writes JSON arrays for all nodes in a `ServerLevel`:
-  - **Areas** (`nodecore_generated_areas.json`): bounding box per node with `name` (`nodecore_<type>_<id8>`), `dimension`, `xmin`–`zmax` (X/Z = center ± radius; Y = 0–320 for ore nodes, center ± radius for `lush_hydro`)
-  - **Spawner snippets** (`nodecore_generated_spawner.json`): per-node `spawner.json` add rules (mob from config, type template) plus `spawn.json` area filters referencing the area name (`incontrol` + `area` + `result: allow`)
-- Config: `incontrol.spawnExportEnabled`, `incontrol.spawnMobsByType` (`ore_iron=minecraft:zombie`, …)
-- `/nodecore export incontrol` — exports current dimension; reports paths + node count (permission 2)
-- Output path: `<gameDir>/config/incontrol/` via `FMLPaths.GAMEDIR.get()`
-- `ExtractionAlertEvent` on `MinecraftForge.EVENT_BUS` for KubeJS/script cancellation (`examples/kubejs/nodecore_extraction_alert.js`)
-
-**Default `spawnMobsByType` mapping:**
-
-| NodeType | Default mob |
-|----------|-------------|
-| `ore_iron` | `minecraft:zombie` |
-| `ore_copper` | `minecraft:husk` |
-| `ore_brass` | `minecraft:drowned` |
-| `ore_quartz` | `minecraft:zombified_piglin` |
-| `lush_hydro` | `minecraft:cave_spider` |
-| `quartz_rift` | `minecraft:blaze` |
-
-Pack maintainers merge generated snippets into live `areas.json` / `spawner.json` / `spawn.json`, then `/incontrol reload`.
-
-**Out of scope (next phase):**
-- Ore stripping / biome purge (may remain in KubeJS or separate datapack)
-- Faction system integration
-- Automatic re-export on node registry changes
+Nodes persist in `nodecore_nodes` SavedData per `ServerLevel`; lush cavern volumes persist separately in `LushCavernSavedData` as 3D region bounds (membership via `NodeQueries.isInLushCavern`, the canonical server-side query that client tint and the growth booster both delegate to).
 
 ## Config ↔ Vision Mapping
 
-| Vision doc requirement | Implementation |
-|------------------------|----------------|
+| Vision requirement | Implementation |
+|--------------------|----------------|
 | Seeds rot in open sky | `SurfaceSterilityHandler` + `sterilityEnabled` |
-| Growth only in lush nodes | `LushGrowthHandler` + `NodeQueries.isInLushNode` |
-| Nodes 2500–4000 apart | `minSpacing`/`maxSpacing` in config + datagen stub; `NodeSpacingHints.violatesMinSpacing` for placement checks |
+| Growth only in lush nodes/caverns | `LushGrowthHandler` + `NodeQueries.isInLushCavern` / `isInLushNode` |
+| Surface uniformly dead, lush stays green | `DeadWorldGrassColors` / `DeadWorldTintRules` + `LushCavernTintQueries` |
+| Indestructible clustered ore nodes | `OreNodeBlock` + `OreNodeClusterMap` + `OreNodePlacer` + `OreNodeProtectionHandler` |
+| One extractor per node, Create-driven | extractor multiblock + `CreateKineticBridge` |
+| Fuel ladder boosts output | `ExtractorFuelTier` + `LiquidFireFuelHandler` |
+| Create outputs nerfed | recipe output reduction (datapack/config) |
+| No-build aura around nodes | `OreNodeNoBuildAuraHandler` (whitelists extractor parts) |
 | Drill placement alert | `ExtractionAlertHandler` + configurable `alertBlocks` |
+
+## Removed (superseded)
+
+The AdLods / Large-Ore-Deposit LOD-mirroring system was removed in the overhaul teardown: `NodeLodBridge`, `NodeLodComms`, `NodeDepositEvent`, `NodeLodEventHandler`, `NodeSpacingWorldgenProvider`, `NodeCoreDataGenerators`, the `adlods/` + `bridge/` packages, the `/nodecore link` command, and `node_spacing_hints.json`. Ore placement now comes from the native clustered ore-node worldgen, not LOD mirroring.

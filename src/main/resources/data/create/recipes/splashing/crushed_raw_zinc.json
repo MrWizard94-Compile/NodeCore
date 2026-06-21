@@ -1,0 +1,22 @@
+{
+  "type": "create:splashing",
+  "ingredients": [
+    {
+      "item": "create:crushed_raw_zinc"
+    }
+  ],
+  "results": [
+    {
+      "item": "create:zinc_nugget",
+      "count": 1
+    },
+    {
+      "item": "create:zinc_nugget",
+      "chance": 0.35
+    },
+    {
+      "chance": 0.25,
+      "item": "minecraft:gunpowder"
+    }
+  ]
+}
