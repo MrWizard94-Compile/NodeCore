@@ -17,5 +17,11 @@ public final class ModBlockEntities {
                             OreExtractorCoreBlockEntity::new,
                             ModBlocks.ORE_EXTRACTOR_CORE.get()).build(null));
 
+    public static final RegistryObject<BlockEntityType<OreExtractorFrameBlockEntity>> ORE_EXTRACTOR_FRAME =
+            BLOCK_ENTITIES.register("ore_extractor_frame",
+                    () -> BlockEntityType.Builder.of(
+                            OreExtractorFrameBlockEntity::new,
+                            ModBlocks.ORE_EXTRACTOR_FRAME.get()).build(null));
+
     private ModBlockEntities() {}
 }

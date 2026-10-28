@@ -4,7 +4,7 @@
 **Target:** Forge 1.20.1 / 47.3.7 (Base Wars pack)  
 **Status:** Base Wars overhaul complete — extractor-node economy, lush caverns, growth booster, Liquid Fire fuel, dead-world surface. The legacy AdLods / Large-Ore-Deposit LOD-mirroring stack has been **removed** (superseded by the extractor-node economy).
 
-Canonical design spec: `JanusPrime/references/basewars-overhaul-spec.md`. Full GDD: `C:\Projects\references\Base_Warfare_Vision_Doc.md`.
+Canonical design spec: `JanusPrime/references/basewars-overhaul-spec.md`. Full GDD: `C:\WPAI\references\Base_Warfare_Vision_Doc.md`.
 
 ## Purpose
 

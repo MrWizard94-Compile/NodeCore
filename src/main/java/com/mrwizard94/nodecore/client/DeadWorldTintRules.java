@@ -1,6 +1,8 @@
 package com.mrwizard94.nodecore.client;
 
 import com.mrwizard94.nodecore.config.NodeCoreConfig;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.Level;
@@ -38,7 +40,11 @@ public final class DeadWorldTintRules {
         if (level instanceof Level world) {
             return world.dimension() == Level.OVERWORLD;
         }
-        return false;
+        // Block-color handlers receive a RenderChunkRegion (not a Level) during
+        // terrain rendering, so the dimension can't come from the passed getter —
+        // resolve it from the client level the player is currently rendering.
+        ClientLevel client = Minecraft.getInstance().level;
+        return client != null && client.dimension() == Level.OVERWORLD;
     }
 
     /**

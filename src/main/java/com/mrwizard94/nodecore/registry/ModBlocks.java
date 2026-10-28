@@ -1,6 +1,8 @@
 package com.mrwizard94.nodecore.registry;
 
 import com.mrwizard94.nodecore.NodeCore;
+import com.mrwizard94.nodecore.block.ArcaneOreBlock;
+import com.mrwizard94.nodecore.block.AstralNexusCrystalBlock;
 import com.mrwizard94.nodecore.block.NodeMarkerBlock;
 import com.mrwizard94.nodecore.block.extractor.OreExtractorCoreBlock;
 import com.mrwizard94.nodecore.block.extractor.OreExtractorFrameBlock;
@@ -50,6 +52,12 @@ public final class ModBlocks {
 
     public static final RegistryObject<OreExtractorFrameBlock> ORE_EXTRACTOR_FRAME = BLOCKS.register("ore_extractor_frame",
             OreExtractorFrameBlock::new);
+
+    public static final RegistryObject<AstralNexusCrystalBlock> ASTRAL_NEXUS_CRYSTAL_BLOCK = BLOCKS.register(
+            "astral_nexus_crystal_block", AstralNexusCrystalBlock::new);
+
+    public static final RegistryObject<ArcaneOreBlock> ARCANE_ORE_BLOCK = BLOCKS.register(
+            "arcane_ore_block", ArcaneOreBlock::new);
 
     private ModBlocks() {}
 }

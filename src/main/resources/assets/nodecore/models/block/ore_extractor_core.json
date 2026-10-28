@@ -1,8 +1,9 @@
 {
   "parent": "minecraft:block/orientable",
   "textures": {
-    "front": "nodecore:block/node_marker_ore_iron",
-    "side": "minecraft:block/iron_block",
-    "top": "minecraft:block/iron_block"
+    "front": "nodecore:block/ore_extractor_core",
+    "side": "nodecore:block/ore_extractor_core_side",
+    "top": "nodecore:block/ore_extractor_core_side",
+    "bottom": "nodecore:block/ore_extractor_core_side"
   }
 }

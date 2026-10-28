@@ -1,5 +1,20 @@
 {
   "variants": {
-    "": { "model": "nodecore:block/ore_extractor_core" }
+    "facing=north": {
+      "model": "nodecore:block/ore_extractor_core",
+      "y": 0
+    },
+    "facing=south": {
+      "model": "nodecore:block/ore_extractor_core",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "nodecore:block/ore_extractor_core",
+      "y": 270
+    },
+    "facing=east": {
+      "model": "nodecore:block/ore_extractor_core",
+      "y": 90
+    }
   }
 }

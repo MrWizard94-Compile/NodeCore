@@ -1,11 +1,11 @@
 package com.mrwizard94.nodecore.blockentity;
 
 import com.mrwizard94.nodecore.block.extractor.ExtractorFuelTier;
-import com.mrwizard94.nodecore.block.extractor.ExtractorMultiblockValidator;
+import com.mrwizard94.nodecore.block.extractor.ExtractorMultiblock;
 import com.mrwizard94.nodecore.block.extractor.ExtractorOutputCatalog;
 import com.mrwizard94.nodecore.block.extractor.ExtractorRegistry;
 import com.mrwizard94.nodecore.config.NodeCoreConfig;
-import com.mrwizard94.nodecore.integration.create.CreateKineticBridge;
+
 import com.mrwizard94.nodecore.node.NodeQueries;
 import com.mrwizard94.nodecore.node.NodeType;
 import com.mrwizard94.nodecore.node.ResourceNode;
@@ -48,8 +48,8 @@ public class OreExtractorCoreBlockEntity extends BlockEntity {
     private final FluidTank lavaTank = new FluidTank(NodeCoreConfig.EXTRACTOR_LAVA_TANK_CAPACITY.get(), fluid ->
             fluid.getFluid().isSame(net.minecraft.world.level.material.Fluids.LAVA));
 
-    private final LazyOptional<IItemHandler> bufferCapability = LazyOptional.of(() -> buffer);
-    private final LazyOptional<IItemHandler> fuelCapability = LazyOptional.of(() -> fuelSlot);
+    private final LazyOptional<IItemHandler> externalItemCapability =
+            LazyOptional.of(() -> new ExtractorMultiblockItemHandler(fuelSlot, buffer));
     private final LazyOptional<IFluidHandler> fluidCapability = LazyOptional.of(() -> lavaTank);
 
     private UUID linkedNodeId;
@@ -84,8 +84,10 @@ public class OreExtractorCoreBlockEntity extends BlockEntity {
             structureValid = refreshStructure(level);
         }
 
-        powered = CreateKineticBridge.maxNeighborSpeed(level, worldPosition)
-                >= NodeCoreConfig.EXTRACTOR_MIN_ROTATION_SPEED.get();
+        powered = ExtractorMultiblock.findLayout(level, worldPosition)
+                .map(layout -> ExtractorMultiblock.maxAssemblyKineticSpeed(level, layout)
+                        >= NodeCoreConfig.EXTRACTOR_MIN_ROTATION_SPEED.get())
+                .orElse(false);
 
         activeFuelTier = ExtractorFuelTier.resolveActive(fuelSlot, solidFuelBurnTicks, lavaTank.getFluid());
         consumeFuel();
@@ -190,13 +192,17 @@ public class OreExtractorCoreBlockEntity extends BlockEntity {
         }
     }
 
+    public void requestStructureRecheck() {
+        structureRecheckCooldown = 0;
+    }
+
     private boolean refreshStructure(ServerLevel level) {
-        Optional<ResourceNode> node = ExtractorMultiblockValidator.findAdjacentOreNode(level, worldPosition);
-        if (node.isEmpty() || !ExtractorMultiblockValidator.hasFrameRing(level, worldPosition)) {
+        Optional<ExtractorMultiblock.Layout> layout = ExtractorMultiblock.findLayout(level, worldPosition);
+        if (layout.isEmpty()) {
             return false;
         }
 
-        ResourceNode resourceNode = node.get();
+        ResourceNode resourceNode = layout.get().node();
         if (linkedNodeId == null || !linkedNodeId.equals(resourceNode.getId())) {
             if (!ExtractorRegistry.get(level).register(resourceNode.getId(), worldPosition)) {
                 return false;
@@ -211,12 +217,12 @@ public class OreExtractorCoreBlockEntity extends BlockEntity {
     }
 
     public boolean tryClaimNode(ServerLevel level) {
-        Optional<ResourceNode> node = ExtractorMultiblockValidator.findAdjacentOreNode(level, worldPosition);
-        if (node.isEmpty()) {
+        Optional<ExtractorMultiblock.Layout> layout = ExtractorMultiblock.findLayout(level, worldPosition);
+        if (layout.isEmpty()) {
             return false;
         }
 
-        ResourceNode resourceNode = node.get();
+        ResourceNode resourceNode = layout.get().node();
         Optional<BlockPos> existing = ExtractorRegistry.get(level).findExtractorForNode(resourceNode.getId());
         if (existing.isPresent() && !existing.get().equals(worldPosition)) {
             return false;
@@ -354,12 +360,9 @@ public class OreExtractorCoreBlockEntity extends BlockEntity {
     @Override
     public <T> LazyOptional<T> getCapability(Capability<T> capability, Direction side) {
         if (capability == ForgeCapabilities.ITEM_HANDLER) {
-            if (side == Direction.UP) {
-                return fuelCapability.cast();
-            }
-            return bufferCapability.cast();
+            return externalItemCapability.cast();
         }
-        if (capability == ForgeCapabilities.FLUID_HANDLER && (side == null || side != Direction.DOWN)) {
+        if (capability == ForgeCapabilities.FLUID_HANDLER) {
             return fluidCapability.cast();
         }
         return super.getCapability(capability, side);
@@ -367,8 +370,7 @@ public class OreExtractorCoreBlockEntity extends BlockEntity {
 
     @Override
     public void invalidateCaps() {
-        bufferCapability.invalidate();
-        fuelCapability.invalidate();
+        externalItemCapability.invalidate();
         fluidCapability.invalidate();
         super.invalidateCaps();
     }

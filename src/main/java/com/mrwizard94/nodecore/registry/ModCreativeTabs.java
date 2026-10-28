@@ -22,6 +22,8 @@ public final class ModCreativeTabs {
                         output.accept(ModItems.LIQUID_FIRE_BUCKET.get());
                         output.accept(ModItems.ORE_EXTRACTOR_CORE.get());
                         output.accept(ModItems.ORE_EXTRACTOR_FRAME.get());
+                        output.accept(ModItems.ASTRAL_NEXUS_CRYSTAL_BLOCK.get());
+                        output.accept(ModItems.ARCANE_ORE_BLOCK.get());
                     })
                     .build());
 

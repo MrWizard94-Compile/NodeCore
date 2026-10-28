@@ -31,5 +31,11 @@ public final class ModItems {
     public static final RegistryObject<Item> ORE_EXTRACTOR_FRAME = ITEMS.register("ore_extractor_frame",
             () -> new BlockItem(ModBlocks.ORE_EXTRACTOR_FRAME.get(), new Item.Properties()));
 
+    public static final RegistryObject<Item> ASTRAL_NEXUS_CRYSTAL_BLOCK = ITEMS.register("astral_nexus_crystal_block",
+            () -> new BlockItem(ModBlocks.ASTRAL_NEXUS_CRYSTAL_BLOCK.get(), new Item.Properties()));
+
+    public static final RegistryObject<Item> ARCANE_ORE_BLOCK = ITEMS.register("arcane_ore_block",
+            () -> new BlockItem(ModBlocks.ARCANE_ORE_BLOCK.get(), new Item.Properties()));
+
     private ModItems() {}
 }

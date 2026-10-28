@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "nodecore:block/astral_nexus_crystal_block"
+    }
+  }
+}

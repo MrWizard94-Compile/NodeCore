@@ -26,6 +26,10 @@ public final class NodeCoreConfig {
     public static final ForgeConfigSpec.IntValue MIN_NODE_SPACING;
     public static final ForgeConfigSpec.IntValue MAX_NODE_SPACING;
     public static final ForgeConfigSpec.ConfigValue<String> MARKER_DEFAULT_NODE_TYPE;
+    public static final ForgeConfigSpec.BooleanValue STARTING_KIT_ENABLED;
+    public static final ForgeConfigSpec.BooleanValue STARTING_KIT_UNBREAKABLE;
+    public static final ForgeConfigSpec.ConfigValue<List<? extends String>> STARTING_KIT_ITEMS;
+    public static final ForgeConfigSpec.ConfigValue<List<? extends String>> STARTING_KIT_ARMOR;
     public static final ForgeConfigSpec.BooleanValue ORE_NODE_WORLDGEN_ENABLED;
     public static final ForgeConfigSpec.DoubleValue ORE_NODE_FREQUENCY;
     public static final ForgeConfigSpec.IntValue ORE_NODE_CLUSTER_SIZE;
@@ -66,9 +70,6 @@ public final class NodeCoreConfig {
     public static final ForgeConfigSpec.IntValue EXTRACTOR_DECAY_AMOUNT;
     public static final ForgeConfigSpec.DoubleValue EXTRACTOR_MIN_ROTATION_SPEED;
     public static final ForgeConfigSpec.IntValue EXTRACTOR_STRUCTURE_CHECK_INTERVAL;
-    public static final ForgeConfigSpec.BooleanValue NO_BUILD_AURA_ENABLED;
-    public static final ForgeConfigSpec.IntValue NO_BUILD_AURA_RADIUS;
-    public static final ForgeConfigSpec.ConfigValue<List<? extends String>> NO_BUILD_AURA_WHITELIST;
     public static final ForgeConfigSpec.BooleanValue LUSH_CAVERN_WORLDGEN_ENABLED;
     public static final ForgeConfigSpec.DoubleValue LUSH_CAVERN_FREQUENCY;
     public static final ForgeConfigSpec.IntValue LUSH_CAVERN_GRID_SPACING;
@@ -228,31 +229,16 @@ public final class NodeCoreConfig {
                 .defineInRange("structureCheckInterval", 40, 5, 600);
         builder.pop();
 
-        builder.push("noBuildAura");
-        NO_BUILD_AURA_ENABLED = builder
-                .comment("Deny block placement near ore nodes except whitelisted extractor parts (keeps taps exposed).")
-                .define("enabled", true);
-        NO_BUILD_AURA_RADIUS = builder
-                .comment("Radius in blocks from each ore-node center where non-whitelisted placement is blocked.")
-                .defineInRange("radius", 24, 4, 128);
-        NO_BUILD_AURA_WHITELIST = builder
-                .comment("Block ids allowed inside the no-build aura (extensible list).")
-                .defineList("whitelist", List.of(
-                        "nodecore:ore_extractor_core",
-                        "nodecore:ore_extractor_frame"
-                ), o -> o instanceof String);
-        builder.pop();
-
         builder.push("nodes");
         DEFAULT_NODE_RADIUS = builder
                 .comment("Default radius (blocks) for newly registered nodes.")
                 .defineInRange("defaultRadius", 48, 8, 256);
         MIN_NODE_SPACING = builder
                 .comment("Minimum spacing hint for worldgen / manual placement (blocks).")
-                .defineInRange("minSpacing", 2500, 500, 20000);
+                .defineInRange("minSpacing", 512, 64, 20000);
         MAX_NODE_SPACING = builder
                 .comment("Maximum spacing hint for worldgen / manual placement (blocks).")
-                .defineInRange("maxSpacing", 4000, 1000, 30000);
+                .defineInRange("maxSpacing", 1024, 128, 30000);
         MARKER_DEFAULT_NODE_TYPE = builder
                 .comment("Node type registered when a node_marker block is placed.")
                 .define("markerDefaultType", "ore_iron");
@@ -402,6 +388,29 @@ public final class NodeCoreConfig {
         LIQUID_FIRE_PARTICLE_CHANCE = builder
                 .comment("Random denominator for SOUL_FIRE_FLAME particles on placed fluid (1 = every tick).")
                 .defineInRange("particleChance", 5, 1, 40);
+        builder.pop();
+
+        builder.push("startingKit");
+        STARTING_KIT_ENABLED = builder
+                .comment("Grant a one-time starting kit on a player's first ever join.")
+                .define("enabled", true);
+        STARTING_KIT_UNBREAKABLE = builder
+                .comment("Mark all damageable kit items Unbreakable.")
+                .define("unbreakable", true);
+        STARTING_KIT_ITEMS = builder
+                .comment("Items added to the inventory on first join (modid:item).")
+                .defineList("items", List.of(
+                        "vanillaaiots:netherite_aiot",
+                        "sophisticatedbackpacks:backpack"
+                ), o -> o instanceof String);
+        STARTING_KIT_ARMOR = builder
+                .comment("Armor equipped on first join, head -> feet (modid:item).")
+                .defineList("armor", List.of(
+                        "minecraft:iron_helmet",
+                        "minecraft:iron_chestplate",
+                        "minecraft:iron_leggings",
+                        "minecraft:iron_boots"
+                ), o -> o instanceof String);
         builder.pop();
 
         COMMON_SPEC = builder.build();

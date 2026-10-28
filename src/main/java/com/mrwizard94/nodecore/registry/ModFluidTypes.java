@@ -2,6 +2,7 @@ package com.mrwizard94.nodecore.registry;
 
 import com.mrwizard94.nodecore.NodeCore;
 import com.mrwizard94.nodecore.config.NodeCoreConfig;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
@@ -14,6 +15,11 @@ import net.minecraftforge.registries.RegistryObject;
 import java.util.function.Consumer;
 
 public final class ModFluidTypes {
+    private static final ResourceLocation LIQUID_FIRE_STILL_TEXTURE =
+            new ResourceLocation(NodeCore.MOD_ID, "block/liquid_fire_still");
+    private static final ResourceLocation LIQUID_FIRE_FLOWING_TEXTURE =
+            new ResourceLocation(NodeCore.MOD_ID, "block/liquid_fire_flow");
+
     public static final DeferredRegister<FluidType> FLUID_TYPES =
             DeferredRegister.create(ForgeRegistries.Keys.FLUID_TYPES, NodeCore.MOD_ID);
 
@@ -34,6 +40,16 @@ public final class ModFluidTypes {
                 @Override
                 public void initializeClient(Consumer<IClientFluidTypeExtensions> consumer) {
                     consumer.accept(new IClientFluidTypeExtensions() {
+                        @Override
+                        public ResourceLocation getStillTexture() {
+                            return LIQUID_FIRE_STILL_TEXTURE;
+                        }
+
+                        @Override
+                        public ResourceLocation getFlowingTexture() {
+                            return LIQUID_FIRE_FLOWING_TEXTURE;
+                        }
+
                         @Override
                         public int getTintColor() {
                             return NodeCoreConfig.liquidFireTintArgb();

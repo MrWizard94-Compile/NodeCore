@@ -96,6 +96,6 @@ No compile-time KubeJS dependency — Node Core posts a standard Forge event on 
 
 | Project | Path |
 |---------|------|
-| VS2 Ship Systems | `C:\Projects\VS2 Ship Systems` |
-| Valkyrien Portals | `C:\Projects\Valkyrien Portals` |
-| Base Wars vision | `C:\Projects\Base_Warfare_Vision_Doc.md` |
+| VS2 Ship Systems | `C:\WPAI\Gaming\Minecraft\Mods-1.20.1-Forge\VS2 Ship Systems` |
+| Valkyrien Portals | `C:\WPAI\Gaming\Minecraft\Mods-1.20.1-Forge\Valkyrien Portals` |
+| Base Wars vision | `C:\WPAI\Base_Warfare_Vision_Doc.md` |

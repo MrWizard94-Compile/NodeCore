@@ -19,7 +19,10 @@ public record DeadWorldBiomeModifier(HolderSet<Biome> biomes) implements BiomeMo
 
     @Override
     public void modify(Holder<Biome> biome, Phase phase, ModifiableBiomeInfo.BiomeInfo.Builder builder) {
-        if (phase != Phase.ADD || !NodeCoreConfig.DEAD_WORLD_ENABLED.get()) {
+        // REMOVE phase runs after every mod's ADD-phase feature injection, so
+        // clearing here strips vanilla AND modded ores/vegetation comprehensively
+        // (ADD phase would miss ores other mods add after us).
+        if (phase != Phase.REMOVE || !NodeCoreConfig.DEAD_WORLD_ENABLED.get()) {
             return;
         }
         if (!biomes.contains(biome)) {

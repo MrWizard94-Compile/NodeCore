@@ -8,6 +8,7 @@ import com.mrwizard94.nodecore.event.OreNodeHandler;
 import com.mrwizard94.nodecore.node.NodeType;
 import com.mrwizard94.nodecore.registry.ModBlocks;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.RandomSource;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -122,12 +123,91 @@ public final class OreNodePlacer {
                 || state.is(Blocks.GRAVEL);
     }
 
-    public static void placeOreNode(ServerLevel level, BlockPos pos, NodeType type, int tier) {
-        BlockState state = ModBlocks.ORE_NODE.get().defaultBlockState()
+    private static final int CLUSTER_RADIUS_H = 7;
+    private static final int CLUSTER_RADIUS_V = 5;
+    private static final double RAW_ORE_FRACTION = 0.12D;
+
+    public static void placeOreNode(ServerLevel level, BlockPos center, NodeType type, int tier) {
+        BlockState nodeState = ModBlocks.ORE_NODE.get().defaultBlockState()
                 .setValue(OreNodeBlock.NODE_TYPE, type)
                 .setValue(OreNodeBlock.TIER, tier);
-        level.setBlock(pos, state, Block.UPDATE_ALL);
-        OreNodeHandler.registerFromBlock(level, pos, type, tier);
-        NodeCore.LOGGER.debug("Placed ore node {} tier {} at {}", type.getId(), tier, pos);
+
+        // Dense ore body around the extraction core. Clamped to the center's own
+        // chunk so we never write into neighbouring (possibly unloaded) chunks
+        // during ChunkEvent.Load. The dead-world ore strip removes biome ore
+        // FEATURES, not blocks we place directly, so this stays.
+        Block oreBlock = clusterOreFor(type);
+        Block rawBlock = rawOreFor(type);
+        RandomSource random = level.getRandom();
+        int cMinX = (center.getX() >> 4) << 4;
+        int cMinZ = (center.getZ() >> 4) << 4;
+        int cMaxX = cMinX + 15;
+        int cMaxZ = cMinZ + 15;
+        BlockPos.MutableBlockPos cursor = new BlockPos.MutableBlockPos();
+        for (int dx = -CLUSTER_RADIUS_H; dx <= CLUSTER_RADIUS_H; dx++) {
+            for (int dz = -CLUSTER_RADIUS_H; dz <= CLUSTER_RADIUS_H; dz++) {
+                for (int dy = -CLUSTER_RADIUS_V; dy <= CLUSTER_RADIUS_V; dy++) {
+                    if (dx == 0 && dy == 0 && dz == 0) {
+                        continue;
+                    }
+                    double norm = (double) (dx * dx + dz * dz) / (double) (CLUSTER_RADIUS_H * CLUSTER_RADIUS_H)
+                            + (double) (dy * dy) / (double) (CLUSTER_RADIUS_V * CLUSTER_RADIUS_V);
+                    if (norm > 1.0D) {
+                        continue;
+                    }
+                    int x = center.getX() + dx;
+                    int z = center.getZ() + dz;
+                    if (x < cMinX || x > cMaxX || z < cMinZ || z > cMaxZ) {
+                        continue;
+                    }
+                    cursor.set(x, center.getY() + dy, z);
+                    if (cursor.getY() <= level.getMinBuildHeight() || cursor.getY() >= level.getMaxBuildHeight()) {
+                        continue;
+                    }
+                    if (!isClusterReplaceable(level.getBlockState(cursor))) {
+                        continue;
+                    }
+                    Block fill = (rawBlock != null && random.nextDouble() < RAW_ORE_FRACTION) ? rawBlock : oreBlock;
+                    level.setBlock(cursor, fill.defaultBlockState(), Block.UPDATE_CLIENTS);
+                }
+            }
+        }
+
+        // Extraction core — the single registered, indestructible node fixture.
+        level.setBlock(center, nodeState, Block.UPDATE_ALL);
+        OreNodeHandler.registerFromBlock(level, center, type, tier);
+        NodeCore.LOGGER.debug("Placed ore-node cluster {} tier {} at {}", type.getId(), tier, center);
+    }
+
+    private static boolean isClusterReplaceable(BlockState state) {
+        return state.isAir()
+                || state.is(Blocks.STONE)
+                || state.is(Blocks.DEEPSLATE)
+                || state.is(Blocks.DIRT)
+                || state.is(Blocks.GRASS_BLOCK)
+                || state.is(Blocks.GRAVEL)
+                || state.is(Blocks.SAND)
+                || state.is(Blocks.ANDESITE)
+                || state.is(Blocks.DIORITE)
+                || state.is(Blocks.GRANITE)
+                || state.is(Blocks.TUFF)
+                || state.is(Blocks.WATER);
+    }
+
+    private static Block clusterOreFor(NodeType type) {
+        return switch (type) {
+            case ORE_IRON -> Blocks.DEEPSLATE_IRON_ORE;
+            case ORE_COPPER, ORE_BRASS -> Blocks.DEEPSLATE_COPPER_ORE;
+            case ORE_QUARTZ, QUARTZ_RIFT -> Blocks.NETHER_QUARTZ_ORE;
+            default -> Blocks.DEEPSLATE_IRON_ORE;
+        };
+    }
+
+    private static Block rawOreFor(NodeType type) {
+        return switch (type) {
+            case ORE_IRON -> Blocks.RAW_IRON_BLOCK;
+            case ORE_COPPER, ORE_BRASS -> Blocks.RAW_COPPER_BLOCK;
+            default -> null;
+        };
     }
 }
